@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "k8s-agent"
+version = "0.1.0"
+description = "Kubernetes LLM agent"
+authors = ["Rudy Attias <rudy@mlxlabs.io>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+kopf = {extras = ["uvloop","full-auth"], version = "*"}
+langchain-community = "*"
+langchain-core = "*"
+fastapi = "*"
+tiktoken = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

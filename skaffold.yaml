@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+build:
+  artifacts:
+    # - image: us.gcr.io/mlxlabs-io/k8s-agent
+    - image: k8s_agent_image
+      context: .
+      sync:
+        infer:
+          - k8s_agent/**
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  helm:
+    releases:
+      - name: mlxlabs
+        chartPath: ../helm-charts/k8s-service
+        valuesFiles:
+          - dev-values.yaml
+        setValueTemplates:
+          image: "{{ .IMAGE_FULLY_QUALIFIED_k8s_agent_image }}"
+        skipBuildDependencies: true
+# deploy:
+#   helm:
+#     releases:
+#       - name: mlxlabs
+#         chartPath: ./deployment/helm/backend
+#         valuesFiles:
+#           - dev-values.yaml
+#           - dev-secrets.yaml
+#         skipBuildDependencies: true

@@ -1,0 +1,5 @@
+kopf[uvloop,full-auth]
+langchain-core
+langchain-community
+fastapi
+tiktoken

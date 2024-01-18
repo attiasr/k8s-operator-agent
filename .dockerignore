@@ -1,0 +1,4 @@
+assets
+.git
+.gitignore
+requirements-dev.*
