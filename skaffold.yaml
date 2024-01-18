@@ -2,8 +2,8 @@ apiVersion: skaffold/v4beta6
 kind: Config
 build:
   artifacts:
-    # - image: us.gcr.io/mlxlabs-io/k8s-agent
-    - image: k8s_agent_image
+    - image: us.gcr.io/mlxlabs-io/k8s-agent
+    # - image: k8s_agent_image
       context: .
       sync:
         infer:
@@ -13,12 +13,12 @@ build:
 manifests:
   helm:
     releases:
-      - name: mlxlabs
-        chartPath: ../helm-charts/k8s-service
+      - name: k8s-agent
+        chartPath: ./deployment/helm/k8s-agent
         valuesFiles:
           - dev-values.yaml
         setValueTemplates:
-          image: "{{ .IMAGE_FULLY_QUALIFIED_k8s_agent_image }}"
+          image: "{{ .IMAGE_FULLY_QUALIFIED_us_gcr_io_mlxlabs_io_k8s_agent }}"
         skipBuildDependencies: true
 # deploy:
 #   helm:

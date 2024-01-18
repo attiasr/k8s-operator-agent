@@ -1,0 +1,28 @@
+{{- if and (eq .Values.workloadType "Deployment") .Values.workloadType }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "k8s-agent.fullname" . }}
+  labels:
+    {{- include "k8s-agent.labels" . | nindent 4 }}
+  {{- with (coalesce .Values.annotations .Values.global.annotations) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.replicas (not .Values.hpa)  }}
+  replicas: {{ .Values.replicas }}
+  {{- end }}
+  {{- if .Values.deploymentStrategy }}
+  strategy:
+    {{- toYaml .Values.deploymentStrategy | nindent 4 }}
+  {{- else if .Values.global.deploymentStrategy }}
+  strategy:
+    {{- toYaml .Values.global.deploymentStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "k8s-agent.selectorLabels" . | nindent 6 }}
+  template:
+    {{- include "k8s-agent.pod" . | nindent 4 }}
+{{- end }}

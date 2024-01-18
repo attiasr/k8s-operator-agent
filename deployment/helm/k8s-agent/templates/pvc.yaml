@@ -1,0 +1,24 @@
+{{- if .Values.pvcs }}
+  {{- $root := . }}
+  {{- range $name, $pvc := .Values.pvcs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-%s" (include "k8s-agent.fullname" $root) $name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "k8s-agent.labels" $root | nindent 4 }}
+spec:
+  accessModes:
+    {{ $pvc.accessModes | toYaml | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ $pvc.size }}
+    {{- if $pvc.storageClassName}}
+  storageClassName: {{ $pvc.storageClassName}}
+    {{- end }}
+    {{- if $pvc.volumeMode}}
+  volumeMode: {{ $pvc.volumeMode}}
+    {{- end }}
+  {{- end }}
+{{- end }}

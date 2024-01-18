@@ -1,0 +1,10 @@
+{{- if .Values.role }}
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "k8s-agent.fullname" . }}
+  labels:
+    {{- include "k8s-agent.labels" . | nindent 4 }}
+rules:
+  {{- toYaml .Values.role | nindent 2 }}
+{{- end }}

@@ -1,0 +1,58 @@
+{{- $root := . }}
+{{- if and (or .Values.role .Values.global.roleName) (or .Values.global.serviceAccount.create .Values.serviceAccount.create) }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "k8s-agent.fullname" . }}
+  labels:
+    {{- include "k8s-agent.labels" . | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "k8s-agent.serviceAccountName" . }}
+roleRef:
+  kind: Role
+  name: {{ default (include "k8s-agent.fullname" .) .Values.global.roleName }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+
+{{- $roleBindings := concat (default list .Values.global.roleBindings) (default list .Values.roleBindings) | uniq -}}
+{{- if $roleBindings }}
+  {{- range $role := $roleBindings }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ printf "%s-%s" (include "k8s-agent.fullname" $root) $role | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "k8s-agent.labels" $root | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "k8s-agent.serviceAccountName" $root }}
+roleRef:
+  kind: Role
+  name: {{ $role }}
+  apiGroup: rbac.authorization.k8s.io
+  {{- end }}
+{{- end }}
+
+{{- $clusterRoleBindings := concat (default list .Values.global.clusterRoleBindings) (default list .Values.clusterRoleBindings) | uniq -}}
+{{- if $clusterRoleBindings }}
+  {{- range $role := $clusterRoleBindings }}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ printf "%s-%s" (include "k8s-agent.fullname" $root) $role | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "k8s-agent.labels" $root | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "k8s-agent.serviceAccountName" $root }}
+  namespace: {{ $root.Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $role }}
+  apiGroup: rbac.authorization.k8s.io
+  {{- end }}
+{{- end }}

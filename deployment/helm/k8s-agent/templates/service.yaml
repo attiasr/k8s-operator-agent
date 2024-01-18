@@ -1,0 +1,32 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "k8s-agent.fullname" . }}
+  labels:
+    {{- include "k8s-agent.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type | default "ClusterIP" }}
+  {{- if .Values.service.externalName }}
+  externalName: {{ .Values.service.externalName }}
+  {{- else }}
+    {{- if or .Values.service.port .Values.service.ports }}
+  ports:
+      {{- if .Values.service.port }}
+    - port: {{ .Values.service.port }}
+      protocol: {{ .Values.service.protocol | default "TCP"}}
+        {{- if .Values.service.targetPort }}
+      targetPort: {{ .Values.service.targetPort }}
+        {{- end }}
+        {{- if .Values.service.portName }}
+      name: {{ .Values.service.portName }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.service.ports }}
+        {{- toYaml .Values.service.ports | nindent 4 }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "k8s-agent.selectorLabels" . | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if and (eq .Values.workloadType "DaemonSet") .Values.workloadType }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "k8s-agent.fullname" . }}
+  labels:
+    {{- include "k8s-agent.labels" . | nindent 4 }}
+  {{- with (coalesce .Values.annotations .Values.global.annotations) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "k8s-agent.selectorLabels" . | nindent 6 }}
+  template:
+    {{- include "k8s-agent.pod" . | nindent 4 }}
+{{- end }}
