@@ -17,6 +17,17 @@ manifests:
         chartPath: ./deployment/helm/k8s-agent
         valuesFiles:
           - dev-values.yaml
+        setValues:
+          command: watchmedo
+          args:
+            - auto-restart
+            - --directory=/src
+            - --pattern=*.py
+            - --recursive
+            - --
+            - python
+            - -m
+            - k8s_agent
         setValueTemplates:
           image: "{{ .IMAGE_FULLY_QUALIFIED_us_gcr_io_mlxlabs_io_k8s_agent }}"
         skipBuildDependencies: true
