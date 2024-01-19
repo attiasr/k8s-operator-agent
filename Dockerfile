@@ -14,6 +14,6 @@ RUN addgroup --gid 500 --system app \
 
 COPY . /src
 
-RUN pip install /src
+RUN pip install -e /src
 
 CMD python -m k8s_agent
