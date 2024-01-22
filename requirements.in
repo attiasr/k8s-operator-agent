@@ -1,5 +1,7 @@
+uvloop
+fastapi
+hypercorn
 kopf[uvloop,full-auth]
+tiktoken
 langchain-core
 langchain-community
-fastapi
-tiktoken
