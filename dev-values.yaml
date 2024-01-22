@@ -1,2 +1,8 @@
-  clusterRoleBindings:
-    - cluster-admin
+clusterRoleBindings:
+  - cluster-admin
+
+service:
+  enabled: true
+  type: LoadBalancer
+  port: 8000
+  targetPort: 8000
