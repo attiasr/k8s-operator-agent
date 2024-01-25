@@ -7,3 +7,4 @@ langchain_openai
 langchain-core
 langchain-community
 langserve
+sse_starlette

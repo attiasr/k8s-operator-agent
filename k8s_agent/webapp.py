@@ -5,7 +5,9 @@ from fastapi import FastAPI, Request
 
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
+from langserve import add_routes
 
+from .agent import chain
 from . import settings, k8sController
 
 from fastapi.responses import JSONResponse
@@ -13,14 +15,21 @@ app = FastAPI()
 
 @app.get("/")
 async def root(request: Request):
-  content = {'crds': k8sController.CRDS }
+  content = {'crds': k8sController.get_crds() }
+
   for index_name in k8sController.index_list():
     idx = k8sController.get_index(index_name=index_name)
-    content[index_name.replace('_idx', '')] = list(idx.keys())
+    pretty_index_name = index_name.replace('_idx', '')
+    content[pretty_index_name] = list(idx.keys())
 
   return JSONResponse(content=content)
 
 
+add_routes(
+  app,
+  chain,
+  path='/agent'
+)
 
 async def start(shutdown_event: asyncio.Event):
   config = Config()

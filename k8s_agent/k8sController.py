@@ -19,6 +19,9 @@ def index_list() -> Iterable[str]:
 def get_index(index_name: str) -> kopf.Index:
   return INDEX_MAP.get(index_name)
 
+def get_crds():
+  return CRDS
+
 @kopf.on.startup()
 async def configure(settings: kopf.OperatorSettings, logger, **_):
   logger.info("configuring k8sController")
@@ -36,13 +39,11 @@ async def deployments_idx(name, namespace, body, **kwargs):
 @kopf.index('apps', 'v1', 'statefulset')
 async def statefulsets_idx(name, namespace, body, **kwargs):
   _update_index_map(**kwargs)
-  ## NOTE: see https://kopf.readthedocs.io/en/stable/indexing/#index-content
   return {f'{namespace}:{name}': body}
 
 @kopf.index('apps', 'v1', 'daemonset')
 async def daemonsets_idx(name, namespace, body, **kwargs):
   _update_index_map(**kwargs)
-  ## NOTE: see https://kopf.readthedocs.io/en/stable/indexing/#index-content
   return {f'{namespace}:{name}': body}
 
 @kopf.index('', 'v1', 'pod')
