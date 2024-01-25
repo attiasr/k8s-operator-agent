@@ -3,5 +3,7 @@ fastapi
 hypercorn
 kopf[uvloop,full-auth]
 tiktoken
+langchain_openai
 langchain-core
 langchain-community
+langserve
