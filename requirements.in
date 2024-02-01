@@ -1,11 +1,11 @@
 uvloop
 fastapi
 hypercorn
-kopf[uvloop,full-auth]
 tiktoken
 langchain_openai
 langchain-core
 langchain-community
+langchain-experimental
 langserve
 sse_starlette
 pydantic==1.10.13
