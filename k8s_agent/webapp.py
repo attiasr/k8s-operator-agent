@@ -15,6 +15,7 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
+  print(type(asyncio.get_event_loop_policy().get_event_loop()))
   return RedirectResponse('/docs')
 
 
@@ -29,5 +30,4 @@ async def start(shutdown_event: asyncio.Event):
   config = Config()
   config.bind = [f'0.0.0.0:{settings.PORT}']
   config.use_reloader = settings.DEBUG
-  config.worker_class = 'uvloop'
   return await serve(app, config, shutdown_trigger=shutdown_event.wait)
