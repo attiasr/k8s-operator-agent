@@ -2,3 +2,6 @@ assets
 .git
 .gitignore
 requirements-dev.*
+*.ipynb
+*.in
+*.pyc

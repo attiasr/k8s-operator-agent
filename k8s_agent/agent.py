@@ -1,26 +1,41 @@
+from operator import itemgetter
 from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad.openai_tools import (
     format_to_openai_tool_messages,
 )
 from langchain.pydantic_v1 import BaseModel
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
-from langchain.tools import ShellTool
-
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_community.tools import ShellTool
 from langchain_openai import ChatOpenAI
+
+from . import settings
 
 
 SYSTEM_PROMPT = '''
-Act as an advanced AI system specialized in Kubernetes cluster management. Your tasks are:
+Act as an advanced AI system specialized in Kubernetes cluster management.
+```CurrentClusterState
+~$ helm list --all-namespaces   # Use helm to query and edit and delete installations of applications or operators
+{helm_list}
 
-1. Optimized Resource Allocation: Use your intelligence to assign namespaces and resources effectively, tailored to each application's specific needs.
+$~ kubectl get CustomResourceDefinitions  # Use kubectl explain to query specific CustomResourceDefinitions structure
+{crds}
 
-2. Command Execution via 'terminal': Perform all operations, including helm, kubectl, awk, sed, and curl, through a 'terminal' tool interface, mimicking real Kubernetes command executions.
-
-3. Application Deployment and Maintenance:
-3.1. Pre-Change Cluster Assessment: Before initiating any changes, including installations, maintenance, or deletions, thoroughly query the cluster's current state. This includes listing helm installations, deployments, stateful sets, and other relevant configurations across the cluster. This step is crucial to ensure decisions are based on the most recent and accurate information, reducing the risk of erroneous actions based on outdated or incorrect assumptions.
-3.2. For Installations: Utilize intelligent strategies to deploy applications using Kubernetes operators and CRDs. Tailor your approach for each specific application, such as Stackgres for PostgreSQL, KubeDB for Redis, and Strimzi Operator for Kafka.
-3.3. For Maintenance/Deletion: Proceed with maintenance or deletion tasks only after a comprehensive assessment of the current cluster state. Ensure that any action taken is informed by the latest cluster data and aligns with the existing configuration and status.
+$~ kubectl get deployments,statefulset,daemonsets,services,ingresse --all-namespaces  # Use kubectl to query and edit resources
+{kubeclt_basic_resources}
+```
+<Instructions>
+- Utilize the terminal function for cli execution of commands such as helm, kubectl, awk, sed, and curl.
+- Applications can be installed, modified and deleted with helm, always search for the application's helm chart name before installation.
+- Applications can be installed, modified and deleted with kubectl CustomResourceDefinitions (CRDs) via an installed Kubernetes operator.
+- Kubernetes operators can be installed, modified and deleted with helm.
+- CustomResourceDefinitions (CRDs) are types, instances can be explained, listed, installed, modified and deleted with kubectl
+- When deploying applications, prioritize installing an Kubernetes operators if none exists and then installing an instance of the operator CustomResourceDefinitions
+- Adjust, remove, or maintain applications based on the provided CurrentClusterState to ensure accurate and context-aware actions.
+- Specify namespaces explicitly during helm or kubectl operations to maintain clear resource management.
+- Don't prompt the user for input, instead use the provided CurrentClusterState to make decisions and continue until the task derive from user input is complete.
+</Instructions>
 '''
 
 shell_tool = ShellTool()
@@ -29,8 +44,8 @@ shell_tool.description = shell_tool.description + f"args {shell_tool.args}".repl
 ).replace("}", "}}")
 
 tools = [shell_tool]
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, streaming=True)
-llm = llm.bind_tools([shell_tool])
+llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=settings.OPENAI_MODEL_TEMP, streaming=True)
+llm = llm.bind_tools(tools)
 
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -40,15 +55,14 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-def test_x(x):
-    print(f"test_x: {x}")
-    return x["input"]
-
 agent = (
-    {
-        "input": test_x,
-        "agent_scratchpad": lambda x: format_to_openai_tool_messages(x["intermediate_steps"]),
-    }
+    RunnableParallel(
+        input=RunnablePassthrough(),
+        agent_scratchpad=lambda x: format_to_openai_tool_messages(x["intermediate_steps"]),
+        helm_list=lambda _: shell_tool.run("helm list --all-namespaces"),
+        crds=lambda _: shell_tool.run("kubectl get crds"),
+        kubeclt_basic_resources=lambda _: shell_tool.run("kubectl get deployments,statefulset,daemonsets,services,ingresses --all-namespaces"),
+    )
     | prompt
     | llm
     | OpenAIToolsAgentOutputParser()
@@ -62,4 +76,7 @@ class Output(BaseModel):
     output: str
 
 
-executor = AgentExecutor(agent=agent, tools=tools, verbose=True).with_types(input_type=Input, output_type=Output)
+executor = AgentExecutor(agent=agent,
+                         tools=tools,
+                         verbose=True).with_types(input_type=Input,
+                                                  output_type=Output)
