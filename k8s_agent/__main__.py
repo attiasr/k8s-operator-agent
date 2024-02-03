@@ -2,7 +2,6 @@ from typing import Any
 import asyncio
 import signal
 
-from . import k8sController
 from . import webapp
 
 if __name__ == '__main__':
@@ -17,6 +16,5 @@ if __name__ == '__main__':
   loop.add_signal_handler(signal.SIGINT, _signal_handler)
 
   loop.run_until_complete(asyncio.gather(
-          k8sController.start(shutdown_event),
           webapp.start(shutdown_event)
   ))
