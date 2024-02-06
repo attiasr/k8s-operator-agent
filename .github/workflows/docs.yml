@@ -1,0 +1,81 @@
+name: Deploy Docs
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: {}
+permissions:
+    contents: read
+    issues: read
+    checks: write
+    pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-python@main
+        with:
+          python-version: 3.11
+          cache: pipenv
+      - name: Setup pages
+        uses: actions/configure-pages@main
+      - name: Build the site
+        run: |
+          set -x
+          cd docs
+          pip install -U pip pipenv
+          pipenv install
+          pipenv run sphinx-build . ./deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@main
+        with:
+          path: './docs/deploy'
+  ###
+  # ```{rubric} Deploy Pages
+  # ```
+  # ---
+  # Download the artifact and deploy to pages.
+  #
+  # ```{code-block} yaml
+  # :linenos:
+  # :caption: Action job that deploys a pages artifact.
+  #
+  # pages:
+  #   needs: build
+  #   runs-on: ubuntu-20.04
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   steps:
+  #     - name: Download pages artifact
+  #       id: download
+  #       uses: actions/download-artifact@main
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
+  # ```
+  pages:
+    needs: build
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Download pages artifact
+        id: download
+        uses: actions/download-artifact@main
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
