@@ -20,7 +20,8 @@ fullnameOverride: ""
 image: {}
 command: null
 args: []
-envVars: {}
+envVars:
+  REDIS_URL: "redis://redis-stack-server:6379"
   # GOOGLE_APPLICATION_CREDENTIALS: /absolute/path/credentials.json
 files: {}
   # /absolute/path/credentials.json:
@@ -82,3 +83,7 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+redis-stack-server:
+  redis_stack_server:
+    storage_class: "hostpath"

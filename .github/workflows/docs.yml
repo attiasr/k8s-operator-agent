@@ -41,26 +41,9 @@ jobs:
   # ---
   # Download the artifact and deploy to pages.
   #
-  # ```{code-block} yaml
-  # :linenos:
-  # :caption: Action job that deploys a pages artifact.
-  #
-  # pages:
-  #   needs: build
-  #   runs-on: ubuntu-20.04
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
-  #   permissions:
-  #     pages: write
-  #     id-token: write
-  #   steps:
-  #     - name: Download pages artifact
-  #       id: download
-  #       uses: actions/download-artifact@main
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
+  # ```{literalinclude} ../.github/workflows/docs.yml
+  # :language: yaml
+  # :start-at: "  pages:\n"
   # ```
   pages:
     needs: build

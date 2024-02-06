@@ -9,3 +9,4 @@ langserve
 sse_starlette
 pydantic==1.10.13
 duckduckgo-search
+redis
