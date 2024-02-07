@@ -1,9 +1,9 @@
-
 import asyncio
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
@@ -29,7 +29,8 @@ async def root():
 add_routes(
   app,
   agent.executor,
-  path='/k8s-agent'
+  path='/k8s-agent',
+  config_keys=["metadata", "configurable", "tags"],
 )
 
 
@@ -37,4 +38,5 @@ async def start(shutdown_event: asyncio.Event):
   config = Config()
   config.bind = [f'0.0.0.0:{settings.PORT}']
   config.use_reloader = settings.DEBUG
+  config.accesslog = '-'
   return await serve(app, config, shutdown_trigger=shutdown_event.wait)
