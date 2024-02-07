@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { RemoteRunnable } from "langchain/runnables/remote";
-import { applyPatch } from "@langchain/core/utils/json_patch";
+import React, { useRef, useState } from "react";
+import { RemoteRunnable } from "@langchain/core/runnables/remote";
+import * as jsonpatch from "@langchain/core/utils/json_patch";
 
 import { EmptyState } from "../components/EmptyState";
 import { ChatMessageBubble, Message } from "../components/ChatMessageBubble";
@@ -23,24 +22,12 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { ArrowUpIcon } from "@chakra-ui/icons";
-import { Select, Link } from "@chakra-ui/react";
+import { Link } from "@chakra-ui/react";
 import { Source } from "./SourceBubble";
 import { apiBaseUrl } from "../utils/constants";
 
-const MODEL_TYPES = [
-  "openai_gpt_3_5_turbo",
-  "anthropic_claude_2_1",
-  "google_gemini_pro",
-  "fireworks_mixtral",
-];
-
-const defaultLlmValue =
-  MODEL_TYPES[Math.floor(Math.random() * MODEL_TYPES.length)];
-
 export function ChatWindow(props: { conversationId: string }) {
   const conversationId = props.conversationId;
-
-  const searchParams = useSearchParams();
 
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<Array<Message>>([]);
@@ -111,13 +98,11 @@ export function ChatWindow(props: { conversationId: string }) {
           metadata: {
             conversation_id: conversationId,
           },
-        },
-        {
-          includeNames: [sourceStepName],
-        },
+        }
       );
       for await (const chunk of streamLog) {
-        streamedResponse = applyPatch(streamedResponse, chunk.ops).newDocument;
+        console.log(JSON.stringify(chunk));
+        streamedResponse = jsonpatch.applyPatch(streamedResponse, chunk.ops).newDocument;
         if (
           Array.isArray(
             streamedResponse?.logs?.[sourceStepName]?.final_output?.output,
@@ -175,21 +160,6 @@ export function ChatWindow(props: { conversationId: string }) {
 
   const sendInitialQuestion = async (question: string) => {
     await sendMessage(question);
-  };
-
-  const insertUrlParam = (key: string, value?: string) => {
-    if (window.history.pushState) {
-      const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set(key, value ?? "");
-      const newurl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname +
-        "?" +
-        searchParams.toString();
-      window.history.pushState({ path: newurl }, "", newurl);
-    }
   };
 
   return (
