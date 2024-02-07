@@ -8,6 +8,7 @@ sphinx = "*"
 sphinx-autobuild = "*"
 pydantic = "*"
 myst-parser = {extras = ["linkify"], version = "*"}
+sphinxcontrib-autoyaml = "*"
 
 [dev-packages]
 
