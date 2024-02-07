@@ -1,3 +1,15 @@
+###
+# ```{rubric} Deploy Docs GHA
+# ```
+# ---
+# GitHub Actions configuration to deploy pages.
+#
+# ```{literalinclude} ../.github/workflows/docs.yml
+# :language: yaml
+# :caption: .github/workflows/docs.yml
+# :start-at: "name: Deploy Docs\n"
+# :end-before: "  ###\n"
+# ```
 name: Deploy Docs
 on:
   pull_request:
@@ -10,7 +22,23 @@ permissions:
     checks: write
     pull-requests: write
 
+###
+# ```{rubric} Jobs
+# ```
+# ---
+# Define jobs to deploy to pages.
 jobs:
+  ###
+  # ```{rubric} Build Pages
+  # ```
+  # ---
+  # Build pages site and upload an artifact
+  #
+  # ```{literalinclude} ../.github/workflows/docs.yml
+  # :language: yaml
+  # :start-at: "  build:\n"
+  # :end-before: "  ###\n"
+  # ```
   build:
     runs-on: ubuntu-20.04
     permissions:
