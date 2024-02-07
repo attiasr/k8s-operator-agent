@@ -23,3 +23,10 @@ purposes of this project, the relevant portion of the LangChang
 documentation is its
 [Python](https://python.langchain.com/docs/get_started/introduction)
 implementation
+
+## CI/CD
+
+This is handled with GitHub Actions.
+
+```{autoyaml} .github/workflows/docs.yml
+```
