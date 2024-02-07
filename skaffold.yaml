@@ -34,15 +34,4 @@ manifests:
             OPENAI_API_KEY: '{{.OPENAI_API_KEY}}'
             LANGCHAIN_API_KEY: '{{.LANGCHAIN_API_KEY}}'
             LANGCHAIN_TRACING_V2: '{{.LANGCHAIN_TRACING_V2}}'
-            LANGCHAIN_PROJECT: '{{.LANGCHAIN_PROJECT}}'
-            LANGCHAIN_ENDPOINT: '{{.LANGCHAIN_ENDPOINT}}'
         skipBuildDependencies: true
-# deploy:
-#   helm:
-#     releases:
-#       - name: mlxlabs
-#         chartPath: ./deployment/helm/backend
-#         valuesFiles:
-#           - dev-values.yaml
-#           - dev-secrets.yaml
-#         skipBuildDependencies: true

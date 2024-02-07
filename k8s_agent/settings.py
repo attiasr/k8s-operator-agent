@@ -1,5 +1,8 @@
 import os
 
+os.environ['LANGCHAIN_ENDPOINT'] = "https://api.smith.langchain.com"
+os.environ['LANGCHAIN_PROJECT'] = "k8s-agent"
+
 DEBUG = bool(os.environ.get('DEBUG', True))
 LOG_LEVEL = os.environ.get('LOG_LEVEL', DEBUG and 'DEBUG' or 'WARNING')
 PORT = int(os.environ.get('PORT', 8000))
