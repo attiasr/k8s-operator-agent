@@ -1,20 +1,26 @@
-# Configuration file for the Sphinx documentation builder.
+#!/usr/bin/env python3
+# pylint: disable=invalid-name
+""" Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
+"""
 author = 'Rudy Attias, Steve Moore, Xander Harris'
+autoyaml_root = '..'
+autoyaml_level = 10
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-        'myst_parser',
+    'myst_parser',
     'sphinx.ext.duration',
-    'sphinx.ext.githubpages',]
+    'sphinx.ext.githubpages',
+    'sphinxcontrib.autoyaml',
+    ]
 
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
