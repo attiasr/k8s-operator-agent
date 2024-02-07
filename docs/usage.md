@@ -12,6 +12,68 @@ this guide will assume that Docker Desktop has been deployed with the
 required configuration and that helm and skaffold are available on the
 user's system
 
+## Skaffold
+
+The quickest way to get up and running for the purpose of development is to
+use the 'dev' command.
+
+### Skaffold Requirements
+
+Before you do that, you'll need the following.
+
+#### Enable Docker access
+
+When Docker was installed your user may not have been added to the group. Make
+sure that gets fixed.
+
+```{code-block} shell
+sudo usermod -a -G docker $USER
+```
+
+#### Configure GCP
+
+Once your user is in the `docker` group and you've restarted your shell,
+you can configure GCP.
+
+```{code-block} shell
+gcloud auth login
+gcloud config set project remote-development-docker
+```
+
+#### Start up minikube
+
+Assuming you're using minikube to simulate a cluster, start it.
+
+```{code-block} shell
+minikube start
+```
+
+#### Build Helm dependencies
+
+There are some dependencies to build with helm.
+
+```{code-block} shell
+cd deployment/helm/k8s-agent
+helm repo add redis https://redis-stack.github.io/helm-redis-stack/
+helm dependency build
+cd ../../../
+```
+
+#### Ensure PVC availability
+
+The redis stack requires a persistent volume claim that must be enabled
+separately from the Skaffold config.
+
+#### Run Skaffold Dev
+
+```{code-block} shell
+skaffold dev
+```
+
+This will build and run the project for you in the configured Kubernetes
+cluster then watch for code updates and refresh the running pods for you
+while you're developing.
+
 ### Helpful aliases
 
 For the sake of saving keystrokes, you may find it helpful to alias helm to
@@ -48,16 +110,3 @@ and running the project.
 The default configuration of this project is much more powerful than
 is required to do development on this project and costs almost nothing to run
 provided that you only run it while you're using it.
-
-## Skaffold
-
-The quickest way to get up and running for the purpose of development is to
-use the 'dev' command.
-
-```{code-block} shell
-skaffold dev
-```
-
-This will build and run the project for you in the configured Kubernetes
-cluster then watch for code updates and refresh the running pods for you
-while you're developing.
